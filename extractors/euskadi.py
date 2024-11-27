@@ -1,12 +1,16 @@
+from postal_codes import provincias
+from wrappers import Wrapper_MUR
 import json
+import os
 
-with open('data-sources/edificios (euskadi).json','r',encoding='utf-8') as f:
-    txt = f.read()
+cwd = os.getcwd()
+print(cwd)
 
-txt = txt.replace('''"address" : "",''','')
-txt = txt.replace('''"phone" : "",''','')
+url = 'data-sources/edificios (euskadi).json'
 
-data = json.loads(txt)
+EUS = Wrapper_MUR(url)
+
+data = EUS.get_data()
 
 mScheme = {
     'documentName' : 'nombre',
@@ -54,7 +58,7 @@ extractor = {}
 provinid = 0
 localid = 0
 
-def extractorter(jsonkey : str,extractorkey : str,en_provincia : int = None):
+def extractorter(jsonkey : str,extractorkey : str,en_provincia : int = None) -> int:
     dataList = extractor.setdefault(extractorkey,[]) #Obtain the extractor value from the key from reference
     nameList = monumentData[jsonkey].split(' ')[0] if jsonkey == 'territory' else monumentData[jsonkey] #Get the name of the reference
     jsonn = list(map(lambda x: x['nombre'] == nameList,dataList)) #Make a boolean list to sort out if there the reference already exists
@@ -67,6 +71,18 @@ def extractorter(jsonkey : str,extractorkey : str,en_provincia : int = None):
     else:
         idd = dataList[jsonn.index(True)]['codigo'] #Get reference which already exists in the database
     return idd
+
+
+def ensureinformation(data : dict) -> bool:
+    if list(data.values()).count('') > 0:
+        return False
+    elif float(data['longitud']) < -90 or float(data['longitud']) > 90 or float(data['latitud']) < -90 or float(data['latitud']) > 90:
+        return False
+    for locality in extractor['localities']:
+        if locality['codigo'] == data['en_localidad']:
+            for province in extractor['provinces']:
+                if province['codigo'] == locality['en_provincia']:
+                    return len(data['codigo_postal']) == 5 and provincias[data['codigo_postal'][:2]] in province['nombre']
 
 
 for monumentData in data:
@@ -88,10 +104,13 @@ for monumentData in data:
             aux.update({'tipo' : j})
             break
     
-    print('Created monument: ' + aux['nombre'])
     m = extractor.setdefault('monuments',[])
-    m.append(aux)
 
+    if ensureinformation(aux):
+        m.append(aux)
+        print('Created monument: ' + aux['nombre'])
 
-with open('prove.json','w+',encoding='utf-8') as f:
-    json.dump(extractor,f,indent=4)
+print(len(extractor['monuments']))
+
+with open('euskadi.json','w+',encoding='utf-8') as f:
+    json.dump(extractor,f,indent=4,ensure_ascii=True)

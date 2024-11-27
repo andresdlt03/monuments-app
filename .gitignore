@@ -1,1 +1,6 @@
 .DS_Store
+#information extracted
+*.json
+#python cache
+*.pyc
+
