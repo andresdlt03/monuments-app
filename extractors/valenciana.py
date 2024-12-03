@@ -1,157 +1,46 @@
 from wrappers import Wrapper_CV
 import json
 from postal_codes import provincias
-import sys
-from webdriverselenium import WebDriverService
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-import tkinter
-import time
+from geopy.geocoders import Nominatim
+from pyproj import Proj, Transformer
+from functools import partial
 
-url = 'data-sources/bienes_inmuebles_interes_cultural (comunitat valenciana).csv'
+url = 'data-sources/Entrega1/bienes_inmuebles_interes_cultural.csv'
 
 wrapper = Wrapper_CV(url)
 
 data= wrapper.get_data()
 
-print(data[0])
+geolocator = Nominatim(user_agent="https://nominatim.org")
 
-service = WebDriverService().get_service()
+reverse = partial(geolocator.reverse, language="es")
 
-options = Options()
-options.add_argument("--headless")  # Run Chrome in headless mode
-options.add_argument("--disable-gpu")  # Disable GPU acceleration
-options.add_argument("--window-size=1920x1080")  # Set window size for rendering
-options.add_argument("--no-sandbox")  # Required for some Linux environments
-options.add_argument("--disable-dev-shm-usage")  # Address shared memory issues
-driver = webdriver.Chrome(service=service,options=options)
+utm_projection = Proj(proj="utm", zone=30, ellps="WGS84", south=False)
 
-wait = WebDriverWait(driver, 10)
+wgs84_projection = Proj(proj="latlong", datum="WGS84")
 
-def get_long_lat(UTMNORTE,UTMESTE):
-    pass
-    # driver.get('https://www.ign.es/web/calculadora-geodesica')
-    # try:
-    #     # Locate and click the close button of the cookie banner
-    #     close_button = driver.find_element(By.ID, "acepto_galleta")  # Replace with actual button ID or locator
-    #     close_button.click()
-    # except Exception as e:
-    #     pass
-    # try:
-    #     helper_element = driver.find_element(By.XPATH, "//input[@id='utm']/following-sibling::ins[@class='iCheck-helper']")
-    #     helper_element.click()
-
-    #     input_X = driver.find_element(By.ID, 'datacoord1')
-    #     input_Y = driver.find_element(By.ID, 'datacoord2')
-    #     calculate = driver.find_element(By.ID, 'trd_calc')
-
-    #     input_X.send_keys(UTMNORTE)
-    #     input_Y.send_keys(UTMESTE)
-    #     calculate.click()
-
-    #     time.sleep(2)
-
-    #     helper_element = driver.find_element(By.XPATH, "//input[@id='chk_etrs89_longd']/following-sibling::ins[@class='iCheck-helper']")
-    #     helper_element.click()
-
-    #     helper_element = driver.find_element(By.XPATH, "//input[@id='chk_etrs89_latgd']/following-sibling::ins[@class='iCheck-helper']")
-    #     helper_element.click()
-
-    #     button = driver.find_element(By.ID, 'trd_calc_m2')
-    #     button.click()
-
-    #     root = tkinter.Tk()
-    #     root.withdraw()
-
-    #     clipboard_content = root.clipboard_get()
-
-    #     clipboard_content = clipboard_content.split('\n')
-
-    #     longitud = ''
-    #     latitud = ''
-    #     for st in clipboard_content:
-    #         if 'LONGITUD' in st:
-    #             longitud = ''.join(c for c in st if c.isdigit() or c == '.' or c == '-')
-    #         elif 'LATITUD' in st:
-    #             latitud = ''.join(c for c in st if c.isdigit() or c == '.' or c == '-')
-    # except:
-    #     longitud = ''
-    #     latitud = ''
-    # return {'longitud' : longitud, 'latitud' : latitud}
+transformer = Transformer.from_proj(utm_projection, wgs84_projection)
 
 
-def get_direction(UTMNORTE,UTMESTE):
+def get_information(norte, este):
+    utm_x = int(norte)
+    utm_y = int(este)
     try:
-        driver.get('https://icv.gva.es/auto/aplicaciones/geocodificador/')
-
-        input_X = driver.find_element(By.ID, 'input_12')
-        input_Y = driver.find_element(By.ID, 'input_13')
-
-        input_X.send_keys(UTMNORTE)
-        input_Y.send_keys(UTMESTE + Keys.RETURN)
-
-        wait = WebDriverWait(driver, 10)
-        divs = wait.until(lambda d: [div for div in d.find_elements(By.CSS_SELECTOR, '.direccion.ng-binding') if div.text != ''])
-
-        a = divs[0].text.split('\n')[1].split(':')[1].strip()
-
-        Municipio = driver.find_element(By.ID, 'select_3')
-        Municipio.click()
-        
-        wait.until(EC.element_to_be_clickable((By.ID, "select_option_2"))).click()
-
-        direction = driver.find_element(By.ID, 'input-5')
-        direction.send_keys(a.split(',')[0])
-        time.sleep(1)
-        driver.execute_script('arguments[0].focus()',direction)
-
-        first_li = wait.until(
-            EC.presence_of_element_located((By.XPATH, "//ul[@id='ul-5']/li[1]//span"))
-        )
-        first_li.click()
-
-        divs = wait.until(lambda d: [div for div in d.find_elements(By.CSS_SELECTOR, '.direccion.ng-binding') if div.text != ''])
-
-        longitud, latitud = divs[0].text.split('\n')[2].split(':')[2].strip().split(' ')
-
-    except Exception as e:
-        a = ''
-        longitud = ''
-        latitud = ''
-        raise e
-    return {'direccion' : a,'longitud' : longitud, 'latitud' : latitud}
-
-
-def get_description(name):
-    driver.get('https://www.google.com')
-    
-    # time.sleep(100)
-    try:   
-        cookie = driver.find_element(By.ID, 'L2AGLb')
-        cookie.click()
-    except Exception as e:
-        pass
-    try:
-        search = driver.find_element(By.NAME, 'q')
-        search.send_keys(name)
-        search.send_keys(Keys.RETURN)
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "search")))
-        description = driver.find_element(By.CSS_SELECTOR, '.kno-rdesc span').text
+        longitude, latitude = transformer.transform(utm_x, utm_y)
+        location = reverse(f'{latitude} , {longitude}')
     except:
-        description = ''
-    try:
-        postalCode = driver.find_element(By.CSS_SELECTOR, '.gqkR3b.hP3ybd').text
-        s = [c for c in postalCode.split(' ') if c.isdigit()]
-    except:
-        s = ''
-    return {'descripcion' : description,'codigo_postal' : s[0] if len(s) > 0 else ''}
+        print()
+        return {'longitud' : '', 'latitud' : '', 'direccion' : '', 'codigo_postal' : ''}
+    address = list(map(lambda x : x.strip(), location.address.split(',')))
+    p = list(filter(lambda x: x.isdigit(),address))
+    codigo_postal = p[0] if len(p) > 0 else ''
+    direccion = address[1]   
+    return {'longitud' : str(longitude), 'latitud' : str(latitude), 'direccion' : direccion, 'codigo_postal' : codigo_postal}
+
 
 mScheme = {
     'DENOMINACION' : 'nombre',
+    'CATEGORIA' : 'descripcion'
     }
 
 typeScheme = {
@@ -223,7 +112,6 @@ def ensureinformation(data : dict) -> bool:
 
 
 data = list(filter(lambda x : list(x.values()).count('') == 0,data))
-n = 0
 for monumentData in data:
     #province transform
     if province_gen in monumentData and monumentData[province_gen] != '':
@@ -236,8 +124,7 @@ for monumentData in data:
     for j in mScheme:
         aux.update({mScheme[j] : monumentData[j]}) if j in monumentData else aux.update({mScheme[j] : ""})
 
-    aux.update(get_direction(monumentData['UTMNORTE'],monumentData['UTMESTE']))
-    aux.update(get_description(monumentData['DENOMINACION']))                 
+    aux.update(get_information(monumentData['UTMNORTE'],monumentData['UTMESTE']))               
     aux.update({'en_localidad' : localid})
 
     '''change on typo'''
@@ -250,8 +137,6 @@ for monumentData in data:
     m = extractor.setdefault('monuments',[])
 
     if ensureinformation(aux):
-        n += 1
-        print(n)
         m.append(aux)
         print('Created monument: ' + aux['nombre'])
 

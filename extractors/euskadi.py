@@ -3,7 +3,7 @@ from wrappers import Wrapper_MUR
 import json
 import os
 
-url = 'data-sources/edificios (euskadi).json'
+url = 'data-sources/Entrega1/edificios.json'
 
 EUS = Wrapper_MUR(url)
 
@@ -75,17 +75,16 @@ def extractorter(jsonkey : str,extractorkey : str,en_provincia : int = None) -> 
 
 
 def ensureinformation(data : dict) -> bool:
-    longitud = ''.join(c for c in data['longitud'] if c.isdigit() or c == '.')
-    latitud = ''.join(c for c in data['latitud'] if c.isdigit() or c == '.')
-    if list(data.values()).count('') > 0:
-        return False
-    elif float(longitud) < -90 or float(latitud) < -90 or float(longitud) > 90 or float(latitud) > 90:
+    longitud = ''.join(c for c in data['longitud'] if c.isdigit() or c == '.' or c == '-')
+    latitud = ''.join(c for c in data['latitud'] if c.isdigit() or c == '.' or c == '-')
+    ensure = list(data.values()).count('') > 0 or float(longitud) < -90 or float(latitud) < -90 or float(longitud) > 90 or float(latitud) > 90 or int(data['codigo_postal'][:2]) < 1 or int(data['codigo_postal'][:2]) > 52
+    if ensure:
         return False
     for locality in extractor['localities']:
         if locality['codigo'] == data['en_localidad']:
             for province in extractor['provinces']:
                 if province['codigo'] == locality['en_provincia']:
-                    return len(data['codigo_postal']) == 5 and provincias[data['codigo_postal'][:2]] in province['nombre']
+                    return len(data['codigo_postal']) == 5 and provincias[data['codigo_postal'][:2]].lower() in province['nombre'].lower()
 
 
 for monumentData in data:
