@@ -3,9 +3,6 @@ from wrappers import Wrapper_MUR
 import json
 import os
 
-cwd = os.getcwd()
-print(cwd)
-
 url = 'data-sources/edificios (euskadi).json'
 
 EUS = Wrapper_MUR(url)
@@ -57,10 +54,14 @@ typeScheme = {
 extractor = {}
 provinid = 0
 localid = 0
+province_gen = 'territory'
+locality_gen = 'locality'
+
 
 def extractorter(jsonkey : str,extractorkey : str,en_provincia : int = None) -> int:
     dataList = extractor.setdefault(extractorkey,[]) #Obtain the extractor value from the key from reference
-    nameList = monumentData[jsonkey].split(' ')[0] if jsonkey == 'territory' else monumentData[jsonkey] #Get the name of the reference
+    # if made if it is a province, if not its a locality
+    nameList = monumentData[jsonkey].split(' ')[0] if jsonkey == province_gen else monumentData[jsonkey] #Get the name of the reference
     jsonn = list(map(lambda x: x['nombre'] == nameList,dataList)) #Make a boolean list to sort out if there the reference already exists
     if not any(jsonn):
         idd = len(dataList)
@@ -74,9 +75,11 @@ def extractorter(jsonkey : str,extractorkey : str,en_provincia : int = None) -> 
 
 
 def ensureinformation(data : dict) -> bool:
+    longitud = ''.join(c for c in data['longitud'] if c.isdigit() or c == '.')
+    latitud = ''.join(c for c in data['latitud'] if c.isdigit() or c == '.')
     if list(data.values()).count('') > 0:
         return False
-    elif float(data['longitud']) < -90 or float(data['longitud']) > 90 or float(data['latitud']) < -90 or float(data['latitud']) > 90:
+    elif float(longitud) < -90 or float(latitud) < -90 or float(longitud) > 90 or float(latitud) > 90:
         return False
     for locality in extractor['localities']:
         if locality['codigo'] == data['en_localidad']:
@@ -87,17 +90,18 @@ def ensureinformation(data : dict) -> bool:
 
 for monumentData in data:
     #province transform
-    if 'territory' in monumentData and monumentData['territory'] != '':
-        provinid = extractorter('territory','provinces')
+    if province_gen in monumentData and monumentData[province_gen] != '':
+        provinid = extractorter(province_gen,'provinces')
     #locality transform
-    if 'locality' in monumentData and monumentData['locality'] != '':
-        localid = extractorter('locality','localities',provinid)
+    if locality_gen in monumentData and monumentData[locality_gen] != '':
+        localid = extractorter(locality_gen,'localities',provinid)
     #monument tranform
     aux = {}
     for j in mScheme:
         aux.update({mScheme[j] : monumentData[j]}) if j in monumentData else aux.update({mScheme[j] : ""})                   
     aux.update({'en_localidad' : localid})
 
+    #tipoMonumento
     typo = monumentData['documentName'].split(' ')[0]
     for j in typeScheme:
         if typo in typeScheme[j]:
@@ -110,7 +114,7 @@ for monumentData in data:
         m.append(aux)
         print('Created monument: ' + aux['nombre'])
 
-print(len(extractor['monuments']))
+# print(len(extractor['monuments']))
 
 with open('euskadi.json','w+',encoding='utf-8') as f:
     json.dump(extractor,f,indent=4,ensure_ascii=True)
