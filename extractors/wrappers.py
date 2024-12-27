@@ -56,10 +56,6 @@ class Wrapper_CAT(Wrapper):
 
 class Wrapper_MUR(Wrapper):
     def get_data(self) -> dict:
-        with open(self.url,'r',encoding='utf-8') as f:
+        with open(self.url, 'r', encoding = 'utf-8') as f:
             txt = f.read()
-
-        txt = txt.replace('''"address" : "",''','')
-        txt = txt.replace('''"phone" : "",''','')
-
         return json.loads(txt)

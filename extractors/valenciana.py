@@ -1,9 +1,8 @@
-# from . import (wrappers,postal_codes)
-import wrappers
-import postal_codes
+from . import wrappers
+from . import postal_codes
 import json
 from selenium import webdriver
-from webdriverselenium import WebDriverService
+from . import webdriverselenium
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
@@ -20,7 +19,7 @@ def get_valencia(pId : int = 0,lId : int = 0) -> list:
 
     data= wrapper.get_data()
 
-    service = WebDriverService().get_service()
+    service = webdriverselenium.WebDriverService().get_service()
 
     options = Options()
     options.add_argument("--headless")  # Run Chrome in headless mode
