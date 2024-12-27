@@ -1,14 +1,12 @@
 from . import (wrappers,postal_codes)
 provincias = postal_codes.provincias
 
-def get_euskadi(pId : int = 0,lId : int = 0) -> list:
+def get_euskadi() -> list:
     url = 'data-sources/Entrega1/edificios.json'
 
-    EUS = wrappers.Wrapper_MUR(url)
+    data = wrappers.Wrapper_MUR(url).get_data();
 
-    data = EUS.get_data()
-
-    mScheme = {
+    monumentsScheme = {
         'documentName' : 'nombre',
         'address' : 'direccion',
         'postalCode': 'codigo_postal',
