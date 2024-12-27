@@ -90,17 +90,10 @@ def get_euskadi(pId : int = 0,lId : int = 0) -> list:
 
 
     for monumentData in data:
-        #province transform
-        if province_gen in monumentData and monumentData[province_gen] != '':
-            provinid = extractorter(province_gen,'provinces')
-        #locality transform
-        if locality_gen in monumentData and monumentData[locality_gen] != '':
-            localid = extractorter(locality_gen,'localities',provinid)
-        #monument tranform
+        #monument transform
         aux = {}
         for j in mScheme:
             aux.update({mScheme[j] : monumentData[j]}) if j in monumentData else aux.update({mScheme[j] : ""})                   
-        aux.update({'en_localidad' : localid})
 
         #tipoMonumento
         typo = monumentData['documentName'].split(' ')[0]
@@ -117,5 +110,13 @@ def get_euskadi(pId : int = 0,lId : int = 0) -> list:
         if ensureinformation(aux):
             m.append(aux)
             print('Created MONUMENT: ' + aux['nombre'])
+            #province transform
+            if province_gen in monumentData and monumentData[province_gen] != '':
+                provinid = extractorter(province_gen,'provinces')
+            #locality transform
+            if locality_gen in monumentData and monumentData[locality_gen] != '':
+                localid = extractorter(locality_gen,'localities',provinid)
+
+            aux.update({'en_localidad' : localid})
 
     return [extractor,provinid,localid]

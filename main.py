@@ -10,16 +10,16 @@ engine = create_engine('postgresql+psycopg2://postgres.bpfzccsjzpeacovylujj:4Vza
 Session = sessionmaker(bind=engine)
 session = Session()
 
-print('EUSKADI LOAD')
-euskadi, pro,loc = get_euskadi()
-print('CASTILLA Y LEON LOAD')
-castillaleon,pro,loc = get_castilla(pro,loc)
+# print('EUSKADI LOAD')
+# euskadi, pro,loc = get_euskadi()
+# print('CASTILLA Y LEON LOAD')
+# castillaleon,pro,loc = get_castilla()
 print('VALENCIANA LOAD')
-valenciana,_,_ = get_valencia(pro,loc)
+valenciana,_,_ = get_valencia()
 
-provinces = euskadi['provinces'] | castillaleon['provinces'] | valenciana['provinces']
-localities = euskadi['localities'] | castillaleon['localities'] | valenciana['localities']
-monuments = euskadi['monuments'] + castillaleon['monuments'] + valenciana['monuments']
+provinces = valenciana['provinces']
+localities = valenciana['localities']
+monuments = valenciana['monuments']
 
 Base.metadata.create_all(engine)
 
