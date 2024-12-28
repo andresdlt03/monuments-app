@@ -1,3 +1,4 @@
+import re
 from . import extractor
 
 monument_type_mapping = {
@@ -57,3 +58,11 @@ class EuskadiExtractor(extractor.Extractor):
                 if keyword.lower() in nombre.lower():
                     return monument_type
         return "Otros"
+    
+    def is_valid_zip_code(zip_code: str):
+        if not re.fullmatch(r'\d{5}', zip_code):
+            return False
+        
+        province = int(zip_code[:2])
+        
+        return province in [1, 20, 48] # Codes of Alaba, Guipuzcoa and Bizkaia 

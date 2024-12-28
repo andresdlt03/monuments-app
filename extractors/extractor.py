@@ -10,7 +10,14 @@ class Extractor():
         pass
 
     """
+    Check if the provided zip code is valid.
+    """
+    @abstractmethod
+    def is_valid_zip_code(zip_code: str) -> bool:
+        pass
+
+    """
     The isValidData function will validate that a row of data is valid and has to be saved on database.
     """
-    def isValidMonument(row: str) -> bool:
+    def is_valid_monument(row: str) -> bool:
         pass
