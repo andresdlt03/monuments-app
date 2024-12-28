@@ -2,7 +2,7 @@ from . import extractor
 
 monument_type_mapping = {
     "Yacimiento_Arqueologico": [
-        "Valle", "Recinto", "Coto", "Calero", "Murallas", "Santiago", "Archivo"
+        "Valle", "Recinto", "Coto", "Calero", "Murallas", "Archivo"
     ],
     "Iglesia_Ermita": [
         "Iglesia", "Ermita", "Catedral", "Basílica", "Parroquia", "Santuario"
@@ -37,14 +37,23 @@ euskadi_monuments_mapping = {
     'documentDescription': 'descripcion'
 }
 
+# TODO - FALTA LA VALIDACIÓN DE LOS CAMPOS Y DESHECHAR LOS INCORRECTOS
 class EuskadiExtractor(extractor.Extractor):
-    def mapToSchema(self, monuments: list[dict]):
+    def map_to_schema(self, monuments: list[dict]):
         monuments_mapped: list[dict] = []
         for monument in monuments:
-            new_monument_mapped = {}
+            monument_mapped = {}
             for key in euskadi_monuments_mapping:
                 value = monument[key]
                 if(value):
-                    new_monument_mapped[euskadi_monuments_mapping[key]] = value
-            monuments_mapped.append(new_monument_mapped)
+                    monument_mapped[euskadi_monuments_mapping[key]] = value
+            monument_mapped['tipo'] = self._map_monument_type(monument_mapped['nombre'])
+            monuments_mapped.append(monument_mapped)
         return monuments_mapped
+    
+    def _map_monument_type(self, nombre: str):
+        for monument_type, keywords in monument_type_mapping.items():
+            for keyword in keywords:
+                if keyword.lower() in nombre.lower():
+                    return monument_type
+        return "Otros"

@@ -13,6 +13,4 @@ euskadi_file = open(url, 'r', encoding='UTF-8')
 euskadi_json: str = json.loads(euskadi_file.read())
 
 euskadi_extractor = EuskadiExtractor()
-euskadi_mapped = euskadi_extractor.mapToSchema(euskadi_json)
-
-print("hola")
+euskadi_mapped = euskadi_extractor.map_to_schema(euskadi_json)
