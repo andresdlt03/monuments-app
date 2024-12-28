@@ -1,3 +1,18 @@
 from logger import logger
+import json
+from extractors.euskadi import EuskadiExtractor
 
-logger.info("Load Euskadi")
+logger.info("Ejecutando...")
+
+logger.info("Extrayendo información EUSKADI...")
+
+url = "./data-sources/edificios (euskadi).json"
+
+# TODO - Remove this two lines
+euskadi_file = open(url, 'r', encoding='UTF-8')
+euskadi_json: str = json.loads(euskadi_file.read())
+
+euskadi_extractor = EuskadiExtractor()
+euskadi_mapped = euskadi_extractor.mapToSchema(euskadi_json)
+
+print("hola")
