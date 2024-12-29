@@ -32,6 +32,7 @@ class EuskadiExtractor(Extractor):
         self.monuments = (
             self.db.table('monumento')
             .select('*')
+            .filter('provincia_id', 'in', self.provinces_codes)
             .execute()).data
         self.provinces = (
             self.db.table('provincia')
