@@ -14,5 +14,9 @@ url = "./data-sources/edificios (euskadi).json"
 euskadi_file = open(url, 'r', encoding='UTF-8')
 euskadi_json = json.loads(euskadi_file.read())
 
+logger.info("Inicializando extractor EUSKADI...")
 euskadi_extractor = EuskadiExtractor(db, logger)
+
+logger.info("Procesando monumentos EUSKADI...")
 euskadi_extractor.process_data(euskadi_json)
+

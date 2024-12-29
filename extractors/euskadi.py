@@ -26,14 +26,10 @@ class EuskadiExtractor(Extractor):
 
             self.process_location(province, locality)
             self.process_monument(monument, locality)
+        self.reset_data()
             
     # REVIEW - It could be generalised to Extractor class?
     def initialize_data(self):
-        self.monuments = (
-            self.db.table('monumento')
-            .select('*')
-            .filter('provincia_id', 'in', self.provinces_codes)
-            .execute()).data
         self.provinces = (
             self.db.table('provincia')
             .select('*')
@@ -44,6 +40,18 @@ class EuskadiExtractor(Extractor):
             .select('*')
             .filter('provincia_id', 'in', self.provinces_codes)
             .execute()).data
+        
+        localities_ids = tuple([d.get('id') for d in self.localities if d.get('id') is not None])
+        self.monuments = (
+            self.db.table('monumento')
+            .select('*')
+            .filter('localidad_id', 'in', localities_ids)
+            .execute()).data
+        
+    def reset_data(self):
+        self.monuments = []
+        self.provinces = []
+        self.localities = []
 
     def validate_monument(self, monument):
         if(monument['latitud'] == '' or monument['longitud'] == ''):
