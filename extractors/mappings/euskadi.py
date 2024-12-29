@@ -34,3 +34,14 @@ euskadi_monument_mapping = {
     'latwgs84': 'latitud',
     'documentDescription': 'descripcion'
 }
+
+euskadi_province_mapping = {
+    'territorycode': 'id',
+    'territory': 'nombre'
+}
+
+euskadi_locality_mapping = {
+    'municipality': 'nombre',
+    'territorycode': 'provincia_id',
+    'postalCode': 'codigo_postal'
+}
