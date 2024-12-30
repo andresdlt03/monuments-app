@@ -29,6 +29,7 @@ class EuskadiExtractor(Extractor):
             value = raw_monument[key]
             locality_mapped[euskadi_locality_mapping[key]] = value
 
+        # SECTION - THIS SECTION IS TO CORRECT THE SPECIFICS ERROR IN THE DATA. It could be extracted to a different method.
         # NOTE - province id = "20 01" -> we only take the "20"
         province_mapped['id'] = province_mapped['id'].split()[0]
         locality_mapped['provincia_id'] = locality_mapped['provincia_id'].split()[0]
