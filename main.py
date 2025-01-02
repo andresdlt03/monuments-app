@@ -1,22 +1,13 @@
-from logger import logger
-import json
-from extractors.euskadi import EuskadiExtractor
-from extractors.extractor import Extractor
-from database import db
+from .logger import logger
+from .api.routes.extractor import router as ExtractorRouter
+from fastapi import FastAPI
 
 logger.info("Ejecutando...")
 
-logger.info("Extrayendo información EUSKADI...")
+logger.info("Creando instancia de API...")
 
-url = "./data-sources/edificios (euskadi).json"
+api = FastAPI()
 
-# TODO - Remove this two lines
-euskadi_file = open(url, 'r', encoding='UTF-8')
-euskadi_json = json.loads(euskadi_file.read())
+logger.info("Inicializando endpoints de la API para los extractores...")
 
-logger.info("Inicializando extractor EUSKADI...")
-euskadi_extractor = EuskadiExtractor(db, logger)
-
-logger.info("Procesando monumentos EUSKADI...")
-euskadi_extractor.process_data(euskadi_json)
-
+api.include_router(ExtractorRouter, prefix="/extractor", tags=["extractor"])
