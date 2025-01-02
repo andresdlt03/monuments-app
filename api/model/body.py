@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class MURDocument(BaseModel):
+class MURMonument(BaseModel):
     documentName: str
     documentDescription: Optional[str] = None
     templateType: str
@@ -51,7 +51,7 @@ class MURDocument(BaseModel):
     metadataXML: Optional[str] = None
     zipFile: Optional[str] = None
 
-class CVDocument(BaseModel):
+class CVMonument(BaseModel):
     IGPCV: Optional[str] = None
     DENOMINACION: Optional[str] = None
     PROVINCIA: Optional[str] = None
@@ -63,7 +63,7 @@ class CVDocument(BaseModel):
     CODCATEGORIA: Optional[str] = None
     CATEGORIA: Optional[str] = None
 
-class CATDocument(BaseModel):
+class CATMonument(BaseModel):
     identificador: Optional[str] = None
     nombre: Optional[str] = None
     tipoMonumento: Optional[str] = None

@@ -32,7 +32,7 @@ class Extractor():
     """
     Method that will initialize the extractor's data of the provinces, localities and monuments.
     """
-    def initialize_data(self):
+    def _initialize_data(self):
         self.provinces = (
             self.db.table('provincia')
             .select('*')
@@ -54,7 +54,7 @@ class Extractor():
     """
     Method that will reset the extractor's data of the provinces, localities and monuments.
     """
-    def reset_data(self):
+    def _reset_data(self):
         self.monuments = []
         self.provinces = []
         self.localities = []
@@ -62,7 +62,7 @@ class Extractor():
     """
     Metohod that will validate the good format of the monument data.
     """
-    def validate_monument(self, monument):
+    def _validate_monument(self, monument):
         if(monument['latitud'] == '' or monument['longitud'] == ''):
             raise Exception(f'Al monumento le faltan coordenadas')
         if(monument['nombre'] == ''):
@@ -78,7 +78,7 @@ class Extractor():
     Method that will validate the location of the monument, checking if the province and locality
     are not empty.
     """
-    def validate_location(self, province, locality):
+    def _validate_location(self, province, locality):
         if(province['nombre'] == ''):
             raise Exception(f'No tiene nombre de provincia (código de provincia: {province['id']})')
         if(locality['nombre'] == ''):
@@ -88,7 +88,7 @@ class Extractor():
     Method that will process the location of the monument, checking if the province and locality
     are already registered in the database, and if not, will insert them.
     """
-    def process_location(self, province, locality):
+    def _process_location(self, province, locality):
         province_registered = False
         for p in self.provinces:
             if (int(p['id']) == int(province['id'])):
@@ -106,7 +106,7 @@ class Extractor():
     Method that will process the monument, checking if the monument is already registered in the database,
     and if not, will insert it.
     """
-    def process_monument(self, monument, locality):
+    def _process_monument(self, monument, locality):
         monument_registered = False
         locality_id = (self.db.table('localidad').select('id').eq('nombre', locality['nombre']).execute()).data[0]['id']
         for m in self.monuments:
@@ -116,15 +116,15 @@ class Extractor():
             monument['localidad_id'] = locality_id
             self.insert_new_monument(monument)
 
-    def insert_new_province(self, new_province):
+    def _insert_new_province(self, new_province):
         self.provinces.append(new_province)
         self.db.table('provincia').insert(new_province).execute()
 
-    def insert_new_locality(self, new_locality):
+    def _insert_new_locality(self, new_locality):
         self.localities.append(new_locality)
         self.db.table('localidad').insert(new_locality).execute()
 
-    def insert_new_monument(self, new_monument):
+    def _insert_new_monument(self, new_monument):
         self.db.table('monumento').insert(new_monument).execute()
 
     """
