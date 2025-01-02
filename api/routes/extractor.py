@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from api.model.body import MURMonument, CVMonument, CATMonument
-from api.services.extractor import MURExtractorService
+from ..model.body import MURMonument, CVMonument, CATMonument
+from ..services.extractor import MURExtractorService
 
 router = APIRouter()
 

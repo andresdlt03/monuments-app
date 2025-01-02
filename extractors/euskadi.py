@@ -1,8 +1,7 @@
-import re
 from logging import Logger
 from supabase import Client
-from extractors.extractor import Extractor
-from extractors.mappings.euskadi import (euskadi_monument_mapping, euskadi_monument_type_mapping, euskadi_province_mapping, euskadi_locality_mapping)
+from .extractor import Extractor
+from .mappings.euskadi import (euskadi_monument_mapping, euskadi_monument_type_mapping, euskadi_province_mapping, euskadi_locality_mapping)
 
 class EuskadiExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
