@@ -1,6 +1,7 @@
 from logger import logger
 import json
 from extractors.euskadi import EuskadiExtractor
+from wrappers import (WrapperEuskadi, WrapperValenciana, Wrapper_CAT)
 from extractors.extractor import Extractor
 from database import db
 
@@ -8,11 +9,20 @@ logger.info("Ejecutando...")
 
 logger.info("Extrayendo información EUSKADI...")
 
-url = "./data-sources/edificios (euskadi).json"
+# URLS
+euskadi_url = "./data-sources/edificios (euskadi).json"
+# castilla_url =  "./data-sources/monumentos (castilla y leon).xml"
+# valenciana_url = "./data-sources/bienes_inmuebles_interes_cultural (comunitat valenciana).csv"
 
-# TODO - Remove this two lines
-euskadi_file = open(url, 'r', encoding='UTF-8')
-euskadi_json = json.loads(euskadi_file.read())
+# WRAPPERS
+euskadi_wrapper = WrapperEuskadi(euskadi_url)
+# castilla_wrapper = WrapperEuskadi(castilla_url)
+# valenciana_wrapper = WrapperValenciana(valenciana_url)
+
+# JSONS
+euskadi_json = euskadi_wrapper.get_data()
+# castilla_json = castilla_wrapper.get_data()
+# valenciana_json = valenciana_wrapper.get_data()
 
 logger.info("Inicializando extractor EUSKADI...")
 euskadi_extractor = EuskadiExtractor(db, logger)
