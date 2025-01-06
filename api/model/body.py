@@ -85,3 +85,9 @@ class CATMonument(BaseModel):
         longitud: Optional[str] = None
     coordenadas: Optional[Poblacion] = None
 
+    class SearchMonument(BaseModel):
+        locality: Optional[str] = None
+        zip_code: Optional[str] = None
+        province: Optional[str] = None
+        monument_type: Optional[str] = None
+
