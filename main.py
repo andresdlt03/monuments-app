@@ -31,6 +31,6 @@ def get_processed_data_euskadi(txt : TxtModel = None):
     euskadi_extractor = EuskadiExtractor(db, logger)
 
     logger.info("Procesando monumentos EUSKADI...")
-    euskadi_extractor.processs_data(euskadi_json)
+    euskadi_extractor.process_data(euskadi_json)
 
 uvicorn.run(app, host="127.0.0.1",port=8003)
