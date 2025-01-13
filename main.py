@@ -1,22 +1,29 @@
-from logger import logger
-import json
-from extractors.euskadi import EuskadiExtractor
-from extractors.extractor import Extractor
-from database import db
+from .logger import logger
+from .api.routes.extractor import router as ExtractorRouter
+from api.routes.search import router as SearchRouter
+from fastapi import FastAPI, Request, Form
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 logger.info("Ejecutando...")
 
-logger.info("Extrayendo información EUSKADI...")
+logger.info("Creando instancia de API...")
 
-url = "./data-sources/edificios (euskadi).json"
+api = FastAPI()
 
-# TODO - Remove this two lines
-euskadi_file = open(url, 'r', encoding='UTF-8')
-euskadi_json = json.loads(euskadi_file.read())
+logger.info("Inicializando endpoints de la API para los extractores...")
 
-logger.info("Inicializando extractor EUSKADI...")
-euskadi_extractor = EuskadiExtractor(db, logger)
+api.include_router(ExtractorRouter, prefix="/extractor", tags=["extractor"])
 
-logger.info("Procesando monumentos EUSKADI...")
-euskadi_extractor.process_data(euskadi_json)
+api.include_router(SearchRouter, prefix="/search", tags=["search"])
 
+api.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates")
+
+# route for the search form
+@api.get("/busqueda", response_class=HTMLResponse)
+async def read_root(request: Request):
+    logger.info("Cargando el formulario de busqueda")
+    return templates.TemplateResponse("search.html", {"request": request})
