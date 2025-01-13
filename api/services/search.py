@@ -3,7 +3,7 @@ from logger import logger
 from ..model.body import SearchMonument
 from fastapi.responses import JSONResponse
 
-def SearchMonumentService(search_params: dict):
+def get_monuments(search_params: dict):
     monuments = db.table('monumento').select("*").execute()
     localities = db.table("localidad").select('id', 'nombre').execute().data
     provinces = db.table('provincia').select('id', 'nombre').execute().data
