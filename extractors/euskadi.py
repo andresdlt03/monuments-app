@@ -1,8 +1,7 @@
-import re
 from logging import Logger
 from supabase import Client
-from extractors.extractor import Extractor
-from extractors.mappings.euskadi import (euskadi_monument_mapping, euskadi_monument_type_mapping, euskadi_province_mapping, euskadi_locality_mapping)
+from .extractor import Extractor
+from .mappings.euskadi import (euskadi_monument_mapping, euskadi_monument_type_mapping, euskadi_province_mapping, euskadi_locality_mapping)
 
 class EuskadiExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
@@ -12,7 +11,7 @@ class EuskadiExtractor(Extractor):
     """
     Method that process a monument with its location to map the name of the properties with our local schema.
     """
-    def map_monument_to_local_schema(self, raw_monument: dict):
+    def _map_monument_to_local_schema(self, raw_monument: dict):
         monument_mapped = {}
         for key in euskadi_monument_mapping:
             value = raw_monument[key]
@@ -39,7 +38,7 @@ class EuskadiExtractor(Extractor):
     """
     Method that assign a type for the monument by looking for keywords in the name.
     """
-    def set_monument_type(self, nombre: str):
+    def _set_monument_type(self, nombre: str):
         for monument_type, keywords in euskadi_monument_type_mapping.items():
             for keyword in keywords:
                 if keyword.lower() in nombre.lower():

@@ -1,36 +1,29 @@
-from logger import logger
-from extractors.euskadi import EuskadiExtractor
-from extractors.extractor import Extractor
-from database import db
-from fastapi import FastAPI
-import uvicorn
-from wrappers.base import TxtModel
-import requests
-
-EUSKADI_API_URL = 'http://127.0.0.1:8000'
-CASTILLA_API_URL = 'http://127.0.0.1:8001'
-VALENCIANA_API_URL = 'http://127.0.0.1:8002'
+from .logger import logger
+from .api.routes.extractor import router as ExtractorRouter
+from api.routes.search import router as SearchRouter
+from fastapi import FastAPI, Request, Form
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 logger.info("Ejecutando...")
 
-app = FastAPI(debug=True,title="Monuments API", description="API para la extracción de monumentos", version="1.0")
+logger.info("Creando instancia de API...")
 
-@app.post("/get_processed_data_euskadi")
-def get_processed_data_euskadi(txt : TxtModel = None):
-    logger.info("Convirtiendo a json los datos de EUSKADI...")
+api = FastAPI()
 
-    if txt == None:
-        euskadi_url = "./data-sources/edificios (euskadi).json"
-        with open(euskadi_url, 'r', encoding='utf-8') as f: 
-            euskadi_to_parse = f.read()
-        euskadi_json = requests.post(f"{EUSKADI_API_URL}/get_json", json={'data' : euskadi_to_parse}).text
-    else:
-        euskadi_json = requests.post(f"{EUSKADI_API_URL}/get_json", json={'data': txt}).text
+logger.info("Inicializando endpoints de la API para los extractores...")
 
-    logger.info("Inicializando extractor EUSKADI...")
-    euskadi_extractor = EuskadiExtractor(db, logger)
+api.include_router(ExtractorRouter, prefix="/extractor", tags=["extractor"])
 
-    logger.info("Procesando monumentos EUSKADI...")
-    euskadi_extractor.process_data(euskadi_json)
+api.include_router(SearchRouter, prefix="/search", tags=["search"])
 
-uvicorn.run(app, host="127.0.0.1",port=8003)
+api.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates")
+
+# route for the search form
+@api.get("/busqueda", response_class=HTMLResponse)
+async def read_root(request: Request):
+    logger.info("Cargando el formulario de busqueda")
+    return templates.TemplateResponse("search.html", {"request": request})
