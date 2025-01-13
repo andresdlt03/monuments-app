@@ -74,20 +74,13 @@ class CATMonument(BaseModel):
     codigoPostal: Optional[str] = None
     Descripcion: Optional[str] = None
     periodoHistorico: Optional[str] = None
-    class Poblacion(BaseModel):
-        provincia: Optional[str] = None
-        municipio: Optional[str] = None
-        localidad: Optional[str] = None
+class Poblacion(BaseModel):
+    provincia: Optional[str] = None
+    municipio: Optional[str] = None
+    localidad: Optional[str] = None
 
-    poblacion: Optional[Poblacion] = None
-    class Coordenadas(BaseModel):
-        latitud: Optional[str] = None
-        longitud: Optional[str] = None
-    coordenadas: Optional[Poblacion] = None
-
-    class SearchMonument(BaseModel):
-        locality: Optional[str] = None
-        zip_code: Optional[str] = None
-        province: Optional[str] = None
-        monument_type: Optional[str] = None
-
+poblacion: Optional[Poblacion] = None
+class Coordenadas(BaseModel):
+    latitud: Optional[str] = None
+    longitud: Optional[str] = None
+coordenadas: Optional[Poblacion] = None
