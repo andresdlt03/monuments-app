@@ -23,6 +23,6 @@ async def get_monuments(
         results = get_monuments_service(search_params)
         return JSONResponse(content={"message": "Búsqueda exitosa", "results": results})
     except Exception as e:
-        logger.error(f"Error procesando los datos de busqueda: {e}")
+        logger.error(f"Error procesando los datos de búsqueda: {e}")
         return {"error": "No se pudieron buscar monumentos", "details": str(e)}
     
