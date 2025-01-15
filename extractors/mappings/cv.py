@@ -34,8 +34,6 @@ CV_monument_type_mapping = {
 
 cv_monument_mapping = {
     'DENOMINACION': 'nombre',
-    'UTMESTE': 'longitud',
-    'UTMNORTE': 'latitud',
     'CATEGORIA': 'descripcion'
 }
 
