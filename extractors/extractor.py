@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from logging import Logger
 from supabase import Client
+import unicodedata
 class Extractor():
 
     def __init__(self, db: Client, logger: Logger):
@@ -94,6 +95,23 @@ class Extractor():
             raise Exception('No tiene nombre de localidad')
 
     """
+    Function to remove accents from province and locality to ensure that the comparation from the province given doesn't match with any other on the database.  
+    """
+    @staticmethod
+    def remove_accents(input_str: str) -> str:
+        output_str = input_str
+        if not input_str.isascii():
+            nfkd_form = unicodedata.normalize("NFKD", input_str)
+            output_str = "".join(
+                [c for c in nfkd_form if not unicodedata.combining(c)]
+            )
+        return output_str
+    
+    """Validate the external data from the database to be equal to the data in the database."""
+    def _validate_name_db(self, external, db_str):
+        return self.remove_accents(external.lower()) == db_str.lower()
+    
+    """
     Method that will process the location of the monument, checking if the province and locality
     are already registered in the database, and if not, will insert them.
     """
@@ -103,12 +121,16 @@ class Extractor():
             if (int(p['id']) == int(province['id'])):
                 province_registered = True
         if(not province_registered):
+            if self._validate_name_db(province['nombre'],p['nombre']):
+                province['nombre'] = p['nombre']
             self._insert_new_province(province)
         locality_registered = False
         for l in self.localities:
             if (l['nombre'] == locality['nombre']):
                 locality_registered = True
         if(not locality_registered):
+            if self._validate_name_db(locality['nombre'],l['nombre']):
+                locality['nombre'] = l['nombre']
             self._insert_new_locality(locality)
 
     """
