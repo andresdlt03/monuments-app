@@ -27,7 +27,7 @@ class Extractor():
                 (monument, province, locality) = self._map_monument_to_local_schema(raw_monument)
                 self._validate_monument(monument)
             except Exception as ex:
-                self.logger.warning(f"Error en el monumento '{monument['nombre']}': {ex}")
+                self.logger.warning(f"Error en el monumento '{raw_monument['nombre']}': {ex}")
                 continue
             self._process_location(province, locality)
             self._process_monument(monument, locality)

@@ -1,6 +1,6 @@
 
 CLE_monument_type_mapping = {
-        "Yacimiento_arqueologico": [
+        "Yacimiento_Arqueologico": [
             "Yacimientos arqueológicos"
         ],
         "Iglesia_Ermita": [
@@ -42,16 +42,5 @@ CLE_monument_mapping = {
     'nombre' : 'nombre',
     'calle' : 'direccion',
     'codigoPostal': 'codigo_postal',
-    'longitud' : 'longitud',
-    'latitud' :'latitud',
     'Descripcion' : 'descripcion'
-    }
-
-CLE_province_mapping = {
-    'provincia': 'nombre'
-}
-
-CLE_locality_mapping = {
-    'municipio': 'nombre',
-    'codigoPostal': 'codigo_postal'
 }
