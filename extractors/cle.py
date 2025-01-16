@@ -2,7 +2,7 @@ import re
 from logging import Logger
 from supabase import Client
 from extractors.extractor import Extractor
-from extractors.mappings.cle import (CLE_province_mapping, CLE_locality_mapping, CLE_monument_mapping, CLE_monument_type_mapping)
+from extractors.mappings.cle import (CLE_monument_mapping, CLE_monument_type_mapping)
 
 class CastillaLeonExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
@@ -18,21 +18,17 @@ class CastillaLeonExtractor(Extractor):
             value = raw_monument[key]
             monument_mapped[CLE_monument_mapping[key]] = value
         monument_mapped['tipo'] = self.set_monument_type(monument_mapped['nombre'])
+        monument_mapped['longitud'] = raw_monument['coordenadas']['longitud']
+        monument_mapped['latitud'] = raw_monument['coordenadas']['latitud']
 
         province_mapped = {}
-        for key in CLE_province_mapping:
-            value = raw_monument[key]
-            province_mapped[CLE_province_mapping[key]] = value
+        province_mapped['id'] = raw_monument['codigoPostal'][:2]
+        province_mapped['nombre'] = raw_monument['poblacion']['provincia']
 
         locality_mapped = {}
-        for key in CLE_locality_mapping:
-            value = raw_monument[key]
-            locality_mapped[CLE_locality_mapping[key]] = value
-
-        # SECTION - THIS SECTION IS TO CORRECT THE SPECIFICS ERROR IN THE DATA. It could be extracted to a different method.
-        # NOTE - province id = "20 01" -> we only take the "20"
-        province_mapped['id'] = province_mapped['id'].split()[0]
-        locality_mapped['provincia_id'] = locality_mapped['provincia_id'].split()[0]
+        locality_mapped['nombre'] = raw_monument['poblacion']['localidad']
+        locality_mapped['provincia_id'] = raw_monument['codigoPostal'][:2]
+        locality_mapped['codigo_postal'] = raw_monument['codigoPostal']
 
         return (monument_mapped, province_mapped, locality_mapped)
 
