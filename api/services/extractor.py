@@ -1,6 +1,6 @@
 from database import db
 from logger import logger
-from extractors.euskadi import EuskadiExtractor
+from extractors.mur import EuskadiExtractor
 
 def MURExtractorService(monument):
     euskadi_extractor = EuskadiExtractor(db, logger)

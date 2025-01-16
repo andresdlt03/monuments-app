@@ -16,7 +16,7 @@ class EuskadiExtractor(Extractor):
         for key in euskadi_monument_mapping:
             value = raw_monument[key]
             monument_mapped[euskadi_monument_mapping[key]] = value
-        monument_mapped['tipo'] = self.set_monument_type(monument_mapped['nombre'])
+        monument_mapped['tipo'] = self._set_monument_type(monument_mapped['nombre'])
 
         province_mapped = {}
         for key in euskadi_province_mapping:
@@ -44,3 +44,6 @@ class EuskadiExtractor(Extractor):
                 if keyword.lower() in nombre.lower():
                     return monument_type
         return "Otros"
+    
+    def _log_error(self, raw_monument: dict, ex: Exception):
+        self.logger.warning(f"Error en el monumento '{raw_monument.get('documentName')}', {ex}")
