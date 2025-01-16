@@ -10,24 +10,32 @@ class Extractor():
         self.provinces = []
         self.localities = []
 
+        self.processed_monuments = 0
+        self.total_monuments = 0
+
     """
     Main method that will process the raw data received by the endpoint, calling all the
     internal methods of the extractor to validate and map the monuments to the internal schema.
     """
     def process_data(self, raw_monuments: list[dict]):
-        self.initialize_data()
-        for raw_monument in raw_monuments:
-            (monument, province, locality) = self.map_monument_to_local_schema(raw_monument)
+        self._initialize_data()
+        
+        self.total_monuments = len(raw_monuments)
 
+        for raw_monument in raw_monuments:
             try:
-                self.validate_monument(monument)
+                (monument, province, locality) = self._map_monument_to_local_schema(raw_monument)
+                self._validate_monument(monument)
             except Exception as ex:
                 self.logger.warning(f"Error en el monumento '{monument['nombre']}': {ex}")
                 continue
+            self._process_location(province, locality)
+            self._process_monument(monument, locality)
+            self.processed_monuments += 1
 
-            self.process_location(province, locality)
-            self.process_monument(monument, locality)
-        self.reset_data()
+        self.logger.info(f"Se han procesado y almacenado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
+        
+        self._reset_data()
 
     """
     Method that will initialize the extractor's data of the provinces, localities and monuments.
@@ -69,8 +77,6 @@ class Extractor():
             raise Exception(f'Al monumento le falta nombre')
         if(monument['codigo_postal'] == ''):
             raise Exception(f'Al monumento le falta código postal')
-        # if(monument['direccion'] == ''):
-        #     raise Exception(f'Al monumento {monument['nombre']} le falta dirección')
         if(monument['descripcion'] == ''):
             raise Exception(f'Al monumento le falta descripción')
 
@@ -94,13 +100,13 @@ class Extractor():
             if (int(p['id']) == int(province['id'])):
                 province_registered = True
         if(not province_registered):
-            self.insert_new_province(province)
+            self._insert_new_province(province)
         locality_registered = False
         for l in self.localities:
             if (l['nombre'] == locality['nombre']):
                 locality_registered = True
         if(not locality_registered):
-            self.insert_new_locality(locality)
+            self._insert_new_locality(locality)
 
     """
     Method that will process the monument, checking if the monument is already registered in the database,
@@ -114,7 +120,7 @@ class Extractor():
                 monument_registered = True
         if(not monument_registered):
             monument['localidad_id'] = locality_id
-            self.insert_new_monument(monument)
+            self._insert_new_monument(monument)
 
     def _insert_new_province(self, new_province):
         self.provinces.append(new_province)
@@ -132,5 +138,5 @@ class Extractor():
     the values that have their key within the schema, changing the key to the one mapped.
     """
     @abstractmethod
-    def map_monument_to_local_schema(self, json, schema: dict[str, str]):
+    def _map_monument_to_local_schema(self, json, schema: dict[str, str]):
         pass
