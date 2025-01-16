@@ -1,5 +1,7 @@
+from fastapi import FastAPI
 from base import Wrapper
 from bs4 import BeautifulSoup as b
+import uvicorn
 
 class WrapperCLE(Wrapper):
     def get_data(self) -> dict:
@@ -27,3 +29,14 @@ class WrapperCLE(Wrapper):
                 else:
                     tag_dict.update({subtag.name : subtag.text})
         return tag_dict
+
+api = FastAPI()
+
+@api.get("/cle/")
+async def get_data():
+    with open('./data-sources/monumentos (castilla y leon).xml', 'r') as f:
+        txt = f.read()
+        wrapper = WrapperCLE(txt)
+        return wrapper.get_data()
+
+uvicorn.run(api, host='127.0.0.1', port=8000)

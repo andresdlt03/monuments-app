@@ -7,10 +7,8 @@ logger.info("Ejecutando...")
 
 logger.info("Creando instancia de API...")
 
-api = FastAPI()
+# logger.info("Inicializando endpoints de la API para los extractores...")
 
-logger.info("Inicializando endpoints de la API para los extractores...")
+# api.include_router(ExtractorRouter, prefix="/extractor", tags=["extractor"])
 
-api.include_router(ExtractorRouter, prefix="/extractor", tags=["extractor"])
-
-api.include_router(SearchRouter, prefix="/search", tags=["search"])
+# api.include_router(SearchRouter, prefix="/search", tags=["search"])
