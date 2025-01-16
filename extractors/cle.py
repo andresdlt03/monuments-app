@@ -1,32 +1,33 @@
+import re
 from logging import Logger
 from supabase import Client
-from .extractor import Extractor
-from .mappings.euskadi import (euskadi_monument_mapping, euskadi_monument_type_mapping, euskadi_province_mapping, euskadi_locality_mapping)
+from extractors.extractor import Extractor
+from extractors.mappings.cle import (CLE_province_mapping, CLE_locality_mapping, CLE_monument_mapping, CLE_monument_type_mapping)
 
-class EuskadiExtractor(Extractor):
+class CastillaLeonExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
         super().__init__(db, logger)
-        self.provinces_codes = (1, 20, 48)
+        self.provinces_codes = (5, 9, 24, 32, 34, 37, 40, 47, 49)
         
     """
-    Method that process a monument with its location to map the name of the properties with our local schema.
+    Metodo que procesa un documento con su localización para mapear el nombre de las propiedad con los de nuestra base de datos.
     """
-    def _map_monument_to_local_schema(self, raw_monument: dict):
+    def map_monument_to_local_schema(self, raw_monument: dict):
         monument_mapped = {}
-        for key in euskadi_monument_mapping:
+        for key in CLE_monument_mapping:
             value = raw_monument[key]
-            monument_mapped[euskadi_monument_mapping[key]] = value
+            monument_mapped[CLE_monument_mapping[key]] = value
         monument_mapped['tipo'] = self.set_monument_type(monument_mapped['nombre'])
 
         province_mapped = {}
-        for key in euskadi_province_mapping:
+        for key in CLE_province_mapping:
             value = raw_monument[key]
-            province_mapped[euskadi_province_mapping[key]] = value
+            province_mapped[CLE_province_mapping[key]] = value
 
         locality_mapped = {}
-        for key in euskadi_locality_mapping:
+        for key in CLE_locality_mapping:
             value = raw_monument[key]
-            locality_mapped[euskadi_locality_mapping[key]] = value
+            locality_mapped[CLE_locality_mapping[key]] = value
 
         # SECTION - THIS SECTION IS TO CORRECT THE SPECIFICS ERROR IN THE DATA. It could be extracted to a different method.
         # NOTE - province id = "20 01" -> we only take the "20"
@@ -36,10 +37,10 @@ class EuskadiExtractor(Extractor):
         return (monument_mapped, province_mapped, locality_mapped)
 
     """
-    Method that assign a type for the monument by looking for keywords in the name.
+    Metodo que asigna el tipo de monumento por las palabras clave en el nombre
     """
-    def _set_monument_type(self, nombre: str):
-        for monument_type, keywords in euskadi_monument_type_mapping.items():
+    def set_monument_type(self, nombre: str):
+        for monument_type, keywords in CLE_monument_type_mapping.items():
             for keyword in keywords:
                 if keyword.lower() in nombre.lower():
                     return monument_type
