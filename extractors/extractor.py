@@ -26,14 +26,17 @@ class Extractor():
             try:
                 (monument, province, locality) = self._map_monument_to_local_schema(raw_monument)
                 self._validate_monument(monument)
+                self._validate_location(province, locality)
             except Exception as ex:
-                self.logger.warning(f"Error en el monumento '{raw_monument['nombre']}': {ex}")
+                self._log_error(raw_monument, ex)
                 continue
+
             self._process_location(province, locality)
             self._process_monument(monument, locality)
+
             self.processed_monuments += 1
 
-        self.logger.info(f"Se han procesado y almacenado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
+        self.logger.info(f"Se han procesado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
         
         self._reset_data()
 
@@ -72,13 +75,13 @@ class Extractor():
     """
     def _validate_monument(self, monument):
         if(monument['latitud'] == '' or monument['longitud'] == ''):
-            raise Exception(f'Al monumento le faltan coordenadas')
+            raise Exception(f'Faltan coordenadas')
         if(monument['nombre'] == ''):
-            raise Exception(f'Al monumento le falta nombre')
+            raise Exception(f'Falta nombre')
         if(monument['codigo_postal'] == ''):
-            raise Exception(f'Al monumento le falta código postal')
+            raise Exception(f'Falta código postal')
         if(monument['descripcion'] == ''):
-            raise Exception(f'Al monumento le falta descripción')
+            raise Exception(f'Falta descripción')
 
     """
     Method that will validate the location of the monument, checking if the province and locality
@@ -139,4 +142,8 @@ class Extractor():
     """
     @abstractmethod
     def _map_monument_to_local_schema(self, json, schema: dict[str, str]):
+        pass
+
+    @abstractmethod
+    def _log_error(self, raw_monument: dict, ex: Exception):
         pass

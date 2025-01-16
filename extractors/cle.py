@@ -59,3 +59,6 @@ class CastillaLeonExtractor(Extractor):
                 if keyword.lower() in nombre.lower():
                     return monument_type
         return "Otros"
+    
+    def _log_error(self, raw_monument: dict, ex: Exception):
+        self.logger.warning(f"Error en el monumento '{raw_monument.get('nombre')}': {ex}")
