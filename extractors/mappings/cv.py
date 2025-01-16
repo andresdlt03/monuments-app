@@ -1,6 +1,6 @@
 
 CV_monument_type_mapping = {
-        "Yacimiento_arqueologico": [
+        "Yacimiento_Arqueologico": [
             "Yacimiento", "Abrigos", "Covalta", "Cerro", "Restos", "Poblado", "Petroglifos", "Petroglifo", "Necrópolis"
         ],
         "Iglesia_Ermita": [
