@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class MURMonument(BaseModel):
+class EUSMonument(BaseModel):
     documentName: str
     documentDescription: Optional[str] = None
     templateType: str
@@ -63,7 +63,7 @@ class CVMonument(BaseModel):
     CODCATEGORIA: Optional[str] = None
     CATEGORIA: Optional[str] = None
 
-class CATMonument(BaseModel):
+class CLEMonument(BaseModel):
     identificador: Optional[str] = None
     nombre: Optional[str] = None
     tipoMonumento: Optional[str] = None
