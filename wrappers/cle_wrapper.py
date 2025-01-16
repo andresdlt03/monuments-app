@@ -1,7 +1,5 @@
-from base import Wrapper, TxtModel
+from base import Wrapper
 from bs4 import BeautifulSoup as b
-from fastapi import FastAPI
-import uvicorn
 
 class WrapperCLE(Wrapper):
     def get_data(self) -> dict:
@@ -14,7 +12,7 @@ class WrapperCLE(Wrapper):
             for tag_content in monument.contents:
                 if tag_content != '\n':
                     if len(tag_content.contents) > 1:
-                        monument_parsed.update(self.update_dict(tag_content))
+                        monument_parsed.update({tag_content.name : self.update_dict(tag_content)})
                     else:
                         monument_parsed.update({tag_content.name : tag_content.text})
             json_parsed.append(monument_parsed)
@@ -29,13 +27,3 @@ class WrapperCLE(Wrapper):
                 else:
                     tag_dict.update({subtag.name : subtag.text})
         return tag_dict
-
-app = FastAPI(debug=True,title="Castilla Wrapper", description="Wrapper para la fuente de datos de Castilla", version="1.0")
-
-@app.post("/get_json")
-async def get_json(txt : TxtModel):
-    castilla_wrapper = WrapperCLE(txt.data)
-    castilla_json = castilla_wrapper.get_data()
-    return castilla_json
-
-uvicorn.run(app, host="127.0.0.1",port=8001)
