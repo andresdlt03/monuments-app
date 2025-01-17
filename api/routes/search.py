@@ -1,3 +1,4 @@
+import html
 from fastapi import APIRouter, Form
 from fastapi.responses import JSONResponse
 from ..services.search import get_monuments as get_monuments_service
@@ -7,10 +8,10 @@ router = APIRouter()
 
 @router.get("/monuments/", tags=["monuments"])
 async def get_monuments(
-    locality: str = Form(None), 
-    zip_code: str = Form(None), 
-    province: str = Form(None), 
-    monument_type: str = Form(None)
+    locality: str | None = None, 
+    zip_code: str | None = None, 
+    province: str | None = None, 
+    monument_type: str | None = None
 ):
     try:
         logger.info("Petición recibida: Procesando formulario...")
@@ -18,7 +19,7 @@ async def get_monuments(
             "locality": locality,
             "zip_code" : zip_code,
             "province" : province,
-            "monument_type" : monument_type
+            "monument_type" : html.unescape(monument_type)
         } 
         results = get_monuments_service(search_params)
         return JSONResponse(content={"message": "Búsqueda exitosa", "results": results})
