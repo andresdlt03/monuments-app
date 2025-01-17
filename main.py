@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import uvicorn
 from logger import logger
 from api.routes.extractor import router as extractorRouter
+from api.routes.search import router as searchRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 logger.info("Ejecutando...")
@@ -27,6 +28,7 @@ app.add_middleware(
 logger.info("Configurando API de carga...")
 
 app.include_router(extractorRouter)
+app.include_router(searchRouter)
 
 logger.info("API configurada")
 
