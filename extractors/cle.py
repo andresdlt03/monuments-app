@@ -10,6 +10,7 @@ class CastillaLeonExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
         super().__init__(db, logger)
         self.provinces_codes = (5, 9, 24, 34, 37, 40, 42, 47, 49)
+        self.provinces_names = ['Ávila', 'Burgos', 'León', 'Palencia', 'Salamanca', 'Segovia', 'Soria', 'Valladolid', 'Zamora']
         
     """
     Metodo que procesa un documento con su localización para mapear el nombre de las propiedad con los de nuestra base de datos.

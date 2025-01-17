@@ -7,7 +7,7 @@ class EuskadiExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
         super().__init__(db, logger)
         self.provinces_codes = (1, 20, 48)
-        
+        self.provinces_names = ['Álava', 'Bizkaia', 'Gipuzkoa']
     """
     Method that process a monument with its location to map the name of the properties with our local schema.
     """

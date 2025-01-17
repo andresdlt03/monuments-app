@@ -18,6 +18,8 @@ class CVExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger, driver: webdriver.Chrome):
         super().__init__(db, logger)
         self.provinces_codes = (3, 12, 46)
+        self.provinces_names = ['Castellón', 'Valencia', 'Alicante']
+        
         self.transformer = Transformer.from_proj(utm_projection, wgs84_projection)
         self.driver = driver
 
