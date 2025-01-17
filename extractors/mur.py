@@ -7,14 +7,14 @@ class EuskadiExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
         super().__init__(db, logger)
         self.provinces_codes = (1, 20, 48)
-        
+        self.provinces_names = ['Araba/Álava', 'Bizkaia', 'Gipuzkoa']
     """
     Method that process a monument with its location to map the name of the properties with our local schema.
     """
     def _map_monument_to_local_schema(self, raw_monument: dict):
         monument_mapped = {}
         for key in euskadi_monument_mapping:
-            value = raw_monument[key]
+            value = raw_monument.setdefault(key, "")
             monument_mapped[euskadi_monument_mapping[key]] = value
         monument_mapped['tipo'] = self._set_monument_type(monument_mapped['nombre'])
 
