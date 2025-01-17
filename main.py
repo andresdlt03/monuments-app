@@ -1,14 +1,23 @@
-from .logger import logger
-from .api.routes.extractor import router as ExtractorRouter
-from api.routes.search import router as SearchRouter
 from fastapi import FastAPI
+import uvicorn
+from .logger import logger
+from .api.routes.extractor import router as extractorRouter
 
 logger.info("Ejecutando...")
 
 logger.info("Creando instancia de API...")
 
-# logger.info("Inicializando endpoints de la API para los extractores...")
+app = FastAPI()
 
-# api.include_router(ExtractorRouter, prefix="/extractor", tags=["extractor"])
+# Configuración API de carga
 
-# api.include_router(SearchRouter, prefix="/search", tags=["search"])
+logger.info("Configurando API de carga...")
+
+app.include_router(extractorRouter)
+
+logger.info("API configurada")
+
+logger.info("Proceso finalizado.")
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=7999)

@@ -3,10 +3,10 @@ import re
 from logging import Logger
 from bs4 import BeautifulSoup
 from supabase import Client
-from extractors.extractor import Extractor
-from extractors.mappings.cle import (CLE_monument_mapping, CLE_monument_type_mapping)
+from ..extractors.extractor import Extractor
+from ..extractors.mappings.cle import (CLE_monument_mapping, CLE_monument_type_mapping)
 
-class CastillaLeonExtractor(Extractor):
+class CLEExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):
         super().__init__(db, logger)
         self.provinces_codes = (5, 9, 24, 34, 37, 40, 42, 47, 49)
