@@ -1,17 +1,15 @@
 from fastapi import APIRouter
-from ..model.body import MURMonument, CVMonument, CATMonument
-from ..services.extractor import MURExtractorService
+from api.services.extractor import MURExtractorService, CVExtractorService, CATExtractorService
 
 router = APIRouter()
 
-@router.post("/mur/", tags=["extractor"])
-async def extract_mur(monument: MURMonument):
-    MURExtractorService(monument)
-
-@router.post("/cv/", tags=["extractor"])
-async def extract_cv(monument: CVMonument):
-    return {"message": "CV extracted"}
-
-@router.post("/cat/", tags=["extractor"])
-async def extract_cat(monument: CATMonument):
-    return {"message": "CAT extracted"}
+@router.post("/extractors/", tags=["extractor"])
+async def launch_extractors(extractors: list[str]):
+    for extractor in extractors:
+        if extractor == 'mur':
+            MURExtractorService()
+        elif extractor == 'cv':
+            CVExtractorService()
+        elif extractor == 'cat':
+            CATExtractorService()
+    return {"message": "Extractors launched"}
