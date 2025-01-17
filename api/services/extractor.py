@@ -1,9 +1,11 @@
 import requests
-from ...database import db
-from ...logger import logger
-from ...extractors.mur import EuskadiExtractor
-from ...extractors.cv import CVExtractor
-from ...extractors.cle import CLEExtractor
+from database import db
+from logger import logger
+from extractors.mur import EuskadiExtractor
+from extractors.cv import CVExtractor
+from extractors.cle import CLEExtractor
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 def MURExtractorService():
     try:
@@ -25,7 +27,10 @@ def CVExtractorService():
         raw_monuments = r.json()
 
         logger.info("Extrayendo los datos de CV")
-        cv_extractor = CVExtractor(db, logger)
+        chrome_options = Options()
+        chrome_options.add_argument("--headless=new")
+        driver = webdriver.Chrome(options=chrome_options)
+        cv_extractor = CVExtractor(db, logger, driver)
         cv_extractor.process_data(raw_monuments)
         return {"message": "CV extracted"}
     except Exception as e:

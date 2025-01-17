@@ -3,8 +3,8 @@ import re
 from logging import Logger
 from bs4 import BeautifulSoup
 from supabase import Client
-from ..extractors.extractor import Extractor
-from ..extractors.mappings.cle import (CLE_monument_mapping, CLE_monument_type_mapping)
+from extractors.extractor import Extractor
+from extractors.mappings.cle import (CLE_monument_mapping, CLE_monument_type_mapping)
 
 class CLEExtractor(Extractor):
     def __init__(self, db: Client, logger: Logger):

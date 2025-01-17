@@ -6,8 +6,8 @@ from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from ..extractors.extractor import Extractor
-from ..extractors.mappings.cv import (CV_monument_type_mapping, cv_locality_mapping, cv_monument_mapping, cv_province_mapping)
+from extractors.extractor import Extractor
+from extractors.mappings.cv import (CV_monument_type_mapping, cv_locality_mapping, cv_monument_mapping, cv_province_mapping)
 
 WEB_URL = 'https://www.coordenadas-gps.com/convertidor-de-coordenadas-gps'
 
