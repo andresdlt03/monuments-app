@@ -27,3 +27,8 @@ async def get_monuments(
         logger.error(f"Error procesando los datos de búsqueda: {e}")
         return {"error": "No se pudieron buscar monumentos", "details": str(e)}
     
+@router.delete("/monuments/", tags=["monuments"])
+async def delete_monuments():
+    logger.info("Petición recibida: Eliminando monumento...")
+    result = delete_monuments()
+    return result

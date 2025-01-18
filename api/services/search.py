@@ -37,3 +37,12 @@ def get_monuments(search_params: dict):
         ]
 
     return monuments_data
+
+def delete_monuments():
+    try:    
+        db.table('monumento').delete().execute()
+        db.table('localidad').delete().execute()
+        db.table('provincia').delete().execute()
+        return {"message": "Almacén vaciado exitosamente"}
+    except Exception as e:
+        return {"error": "Error vaciando almacén", "details": str(e)}
