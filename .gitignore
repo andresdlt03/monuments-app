@@ -1,0 +1,8 @@
+.DS_Store
+#information extracted
+*.json
+!edificios.json
+#python cache
+*.pyc
+.history/
+
