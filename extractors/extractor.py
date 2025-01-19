@@ -1,6 +1,9 @@
 from abc import abstractmethod
 from logging import Logger
 from supabase import Client
+import unicodedata
+from geopy.geocoders import Nominatim
+
 class Extractor():
 
     def __init__(self, db: Client, logger: Logger):
@@ -9,9 +12,12 @@ class Extractor():
         self.monuments = []
         self.provinces = []
         self.localities = []
+        self.provinces_codes = ()
+        self.provinces_names = []
 
         self.processed_monuments = 0
         self.total_monuments = 0
+        self.geolocator = Nominatim(user_agent="https://nominatim.org")
 
     """
     Main method that will process the raw data received by the endpoint, calling all the
@@ -30,7 +36,7 @@ class Extractor():
             except Exception as ex:
                 self._log_error(raw_monument, ex)
                 continue
-
+            
             self._process_location(province, locality)
             self._process_monument(monument, locality)
 
@@ -70,29 +76,70 @@ class Extractor():
         self.provinces = []
         self.localities = []
 
+    """Method to verify if latitude and longitude are valid."""
+
+    def _validate_latitude_longitude(self,latitude,longitude):
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+            return latitude < -90 or latitude > 90 or longitude < -90 or longitude > 90
+        except Exception:
+            raise Exception(f'Faltan coordenadas')
+
+    """Method to verify if the postal code is valid."""	
+    def _validate_postal_code(self,postal_code):
+        if postal_code == "":
+            raise Exception(f'Falta código postal')
+        return int(postal_code[:2]) not in self.provinces_codes
+            
+        
     """
     Metohod that will validate the good format of the monument data.
     """
     def _validate_monument(self, monument):
-        if(monument['latitud'] == '' or monument['longitud'] == ''):
-            raise Exception(f'Faltan coordenadas')
+        if(self._validate_latitude_longitude(monument['latitud'],monument['longitud'])):
+            raise Exception(f'Coordenadas no validas')
         if(monument['nombre'] == ''):
             raise Exception(f'Falta nombre')
-        if(monument['codigo_postal'] == ''):
-            raise Exception(f'Falta código postal')
+        if(self._validate_postal_code(monument['codigo_postal'])):
+            raise Exception(f'Codigo postal no valido')
         if(monument['descripcion'] == ''):
             raise Exception(f'Falta descripción')
 
+    """
+    Function to remove accents from province and locality to ensure that the comparation from the province given doesn't match with any other on the database.  
+    """
+    @staticmethod
+    def remove_accents(input_str: str) -> str:
+        nfkd_form = unicodedata.normalize("NFKD", input_str)
+        return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+    
+    """Validate the external data from the database to be equal to the data in the database."""
+    def _is_valid_province(self, external_province, db_province):
+        return self.remove_accents(external_province) == self.remove_accents(db_province)
+    
+    """"Check that the province name is valid and its in the province_names list."""
+    def _check_province_name(self, province):
+        try:
+            return not any(self._is_valid_province(province['nombre'], name) for name in self.provinces_names)
+        except Exception:
+            raise Exception(f"No tiene nombre de provincia (código de provincia: {province['id']})")
+        
     """
     Method that will validate the location of the monument, checking if the province and locality
     are not empty.
     """
     def _validate_location(self, province, locality):
-        if(province['nombre'] == ''):
-            raise Exception(f'No tiene nombre de provincia (código de provincia: {province['id']})')
+        if(self._check_province_name(province)):
+            raise Exception(f'Provincia no válida')
         if(locality['nombre'] == ''):
             raise Exception('No tiene nombre de localidad')
+    
 
+    """Get equal province name from the correct provinces names."""
+    def _get_province_name(self, province):
+        return next(name for name in self.provinces_names if self._is_valid_province(province['nombre'], name))
+    
     """
     Method that will process the location of the monument, checking if the province and locality
     are already registered in the database, and if not, will insert them.
@@ -103,6 +150,7 @@ class Extractor():
             if (int(p['id']) == int(province['id'])):
                 province_registered = True
         if(not province_registered):
+            province['nombre'] = self._get_province_name(province)
             self._insert_new_province(province)
         locality_registered = False
         for l in self.localities:
@@ -110,6 +158,13 @@ class Extractor():
                 locality_registered = True
         if(not locality_registered):
             self._insert_new_locality(locality)
+
+    def get_address_from_lat_lng(lat, lng):
+        lat = float(lat)
+        lng = float(lng)
+        geolocator = Nominatim(user_agent="https://nominatim.org")
+        location = geolocator.reverse((lat, lng), exactly_one=True)
+        return location.address
 
     """
     Method that will process the monument, checking if the monument is already registered in the database,
@@ -123,6 +178,8 @@ class Extractor():
                 monument_registered = True
         if(not monument_registered):
             monument['localidad_id'] = locality_id
+            # if monument['direccion'] == "":
+            #     monument['direccion'] = self.get_address_from_lat_lng(monument['latitud'], monument['longitud'])
             self._insert_new_monument(monument)
 
     def _insert_new_province(self, new_province):
