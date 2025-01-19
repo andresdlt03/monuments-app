@@ -14,6 +14,7 @@ class Extractor():
         self.localities = []
         self.provinces_codes = ()
         self.provinces_names = []
+        self.messages = []
 
         self.processed_monuments = 0
         self.total_monuments = 0
@@ -35,6 +36,7 @@ class Extractor():
                 self._validate_location(province, locality)
             except Exception as ex:
                 self._log_error(raw_monument, ex)
+                self.messages.append(ex)
                 continue
             
             self._process_location(province, locality)
@@ -43,8 +45,10 @@ class Extractor():
             self.processed_monuments += 1
 
         self.logger.info(f"Se han procesado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
-        
+        self.messages.append(f"Se han procesado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
+
         self._reset_data()
+        return self.messages
 
     """
     Method that will initialize the extractor's data of the provinces, localities and monuments.

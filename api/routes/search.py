@@ -1,5 +1,5 @@
 import html
-from fastapi import APIRouter, Form
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from ..services.search import get_monuments as get_monuments_service
 from logger import logger

@@ -9,11 +9,12 @@ class Extractors(BaseModel):
 
 @router.post("/extractors/", tags=["extractor"])
 async def launch_extractors(extractors: Extractors):
+    results = {}
     for extractor in extractors.extractors:
         if extractor == 'mur':
-            MURExtractorService()
+            results['mur'] = MURExtractorService()
         elif extractor == 'cv':
-            CVExtractorService()
+            results['cv'] = CVExtractorService()
         elif extractor == 'cat':
-            CATExtractorService()
-    return {"message": "Extractors launched"}
+            results['cat'] = CATExtractorService()
+    return results
