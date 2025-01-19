@@ -35,8 +35,8 @@ class Extractor():
                 self._validate_monument(monument)
                 self._validate_location(province, locality)
             except Exception as ex:
-                self._log_error(raw_monument, ex)
-                self.messages.append(ex)
+                error_message = self._log_error(raw_monument, ex)
+                self.messages.append(error_message)
                 continue
             
             self._process_location(province, locality)

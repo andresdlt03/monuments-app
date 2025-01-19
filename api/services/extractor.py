@@ -18,7 +18,7 @@ def MURExtractorService():
         result = euskadi_extractor.process_data(raw_monuments)
         return result
     except Exception as e:
-        return {"message": f"Error al extraer la información: {e}"}
+        return {"error": f"Error al extraer la información: {e}"}
 
 def CVExtractorService():
     try:
@@ -34,7 +34,7 @@ def CVExtractorService():
         result = cv_extractor.process_data(raw_monuments)
         return result
     except Exception as e:
-        return {"message": f"Error al extraer la información: {e}"}
+        return {"error": f"Error al extraer la información: {e}"}
 
 def CATExtractorService():
     try:
@@ -47,4 +47,4 @@ def CATExtractorService():
         result = cle_extractor.process_data(raw_monuments)
         return result
     except Exception as e:
-        return {"message": f"Error al extraer la información: {e}"}
+        return {"error": f"Error al extraer la información: {e}"}
