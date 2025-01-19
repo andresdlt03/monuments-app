@@ -16,12 +16,14 @@ async def get_monuments(
 ):
     try:
         logger.info("Petición recibida: Procesando formulario...")
+        if(monument_type):
+            monument_type = html.unescape(monument_type)
         search_params = {
             "locality": locality,
             "zip_code" : zip_code,
             "province" : province,
-            "monument_type" : html.unescape(monument_type)
-        } 
+            "monument_type" : monument_type
+        }
         results = get_monuments_service(search_params)
         return JSONResponse(content={"message": "Búsqueda exitosa", "results": results})
     except Exception as e:
