@@ -46,4 +46,6 @@ class EuskadiExtractor(Extractor):
         return "Otros"
     
     def _log_error(self, raw_monument: dict, ex: Exception):
-        self.logger.warning(f"Error en el monumento '{raw_monument.get('documentName')}', {ex}")
+        message = f"Error en el monumento '{raw_monument.get('documentName')}', {ex}"
+        self.logger.warning(message)
+        return message
