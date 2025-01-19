@@ -2,6 +2,7 @@ import html
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from ..services.search import get_monuments as get_monuments_service
+from ..services.search import delete_monuments as delete_monuments_service
 from logger import logger
 
 router = APIRouter()
@@ -30,5 +31,5 @@ async def get_monuments(
 @router.delete("/monuments/", tags=["monuments"])
 async def delete_monuments():
     logger.info("Petición recibida: Eliminando monumento...")
-    result = delete_monuments()
+    result = await delete_monuments_service()
     return result
