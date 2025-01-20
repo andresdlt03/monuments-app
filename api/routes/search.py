@@ -18,6 +18,10 @@ async def get_monuments(
         logger.info("Petición recibida: Procesando formulario...")
         if(monument_type):
             monument_type = html.unescape(monument_type)
+        if(province):
+            province = html.unescape(province)
+        if(locality):
+            locality = html.unescape(locality)
         search_params = {
             "locality": locality,
             "zip_code" : zip_code,
