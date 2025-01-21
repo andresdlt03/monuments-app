@@ -26,7 +26,7 @@ def get_monuments(search_params: dict):
         province_name = search_params["province"].lower() 
         monuments_data = [
             monument for monument in monuments_data
-            if province_name in province_dict.get(monument["provincia_id"], "").lower()
+            if province_name == province_dict.get(int(monument["codigo_postal"][:2]), "").lower()
         ]
     
     if search_params.get("monument_type"):
