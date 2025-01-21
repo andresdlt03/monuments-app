@@ -49,7 +49,7 @@ class CVExtractor(Extractor):
 
         monument_mapped = {}
         for key in cv_monument_mapping:
-            value = raw_monument[key]
+            value = raw_monument.setdefault(key, "")
             monument_mapped[cv_monument_mapping[key]] = value
         monument_mapped['tipo'] = self._set_monument_type(monument_mapped['nombre'])
         monument_mapped['direccion'] = address

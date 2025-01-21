@@ -20,6 +20,7 @@ class CLEExtractor(Extractor):
         # Comprobamos que el código postal tenga 5 dígitos
         if len(raw_monument['codigoPostal']) == 4: 
             raw_monument['codigoPostal'] = "0" + raw_monument['codigoPostal']
+            self.messages.append_repairs(f"El código postal del monumento '{raw_monument.get('nombre')}' ha sido corregido a '{raw_monument['codigoPostal']}'")
         
         # Eliminamos las etiquetas HTML y los espacios en blanco de la descripción
         raw_monument['Descripcion'] = html.unescape(raw_monument['Descripcion'])
@@ -28,10 +29,7 @@ class CLEExtractor(Extractor):
 
         monument_mapped = {}
         for key in CLE_monument_mapping:
-            try:
-                value = raw_monument[key]
-            except KeyError:
-                raise KeyError(f"La propiedad '{key}' no existe")
+            value = raw_monument.setdefault(key, "")
             monument_mapped[CLE_monument_mapping[key]] = value
         monument_mapped['tipo'] = self._set_monument_type(raw_monument['tipoMonumento'])
         try:

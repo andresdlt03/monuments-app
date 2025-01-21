@@ -3,6 +3,7 @@ from logging import Logger
 from supabase import Client
 import unicodedata
 from geopy.geocoders import Nominatim
+from extractors.message import Message
 
 class Extractor():
 
@@ -14,7 +15,7 @@ class Extractor():
         self.localities = []
         self.provinces_codes = ()
         self.provinces_names = []
-        self.messages = []
+        self.messages = Message()
 
         self.processed_monuments = 0
         self.total_monuments = 0
@@ -36,19 +37,20 @@ class Extractor():
                 self._validate_location(province, locality)
             except Exception as ex:
                 error_message = self._log_error(raw_monument, ex)
-                self.messages.append(error_message)
+                self.messages.append_errors(error_message)
                 continue
             
             self._process_location(province, locality)
-            self._process_monument(monument, locality)
+            registered = self._process_monument(monument, locality)
+            if not registered:
+                self.processed_monuments += 1
 
-            self.processed_monuments += 1
-
+        messages_list = self.messages.return_list()
         self.logger.info(f"Se han procesado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
-        self.messages.append(f"Se han procesado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
+        messages_list.append(f"Se han procesado {self.processed_monuments} monumentos con éxito de un total de {self.total_monuments}")
 
         self._reset_data()
-        return self.messages
+        return messages_list
 
     """
     Method that will initialize the extractor's data of the provinces, localities and monuments.
@@ -142,19 +144,21 @@ class Extractor():
 
     """Get equal province name from the correct provinces names."""
     def _get_province_name(self, province):
-        return next(name for name in self.provinces_names if self._is_valid_province(province['nombre'], name))
-    
+        original_province = next(name for name in self.provinces_names if self._is_valid_province(province['nombre'], name))
+        if original_province != province['nombre']:
+            self.messages.append_repairs(f"Se ha corregido el nombre de la provincia de {province['nombre']} a {original_province}")
+        return original_province
     """
     Method that will process the location of the monument, checking if the province and locality
     are already registered in the database, and if not, will insert them.
     """
     def _process_location(self, province, locality):
         province_registered = False
+        province['nombre'] = self._get_province_name(province)
         for p in self.provinces:
             if (int(p['id']) == int(province['id'])):
                 province_registered = True
         if(not province_registered):
-            province['nombre'] = self._get_province_name(province)
             self._insert_new_province(province)
         locality_registered = False
         for l in self.localities:
@@ -162,8 +166,11 @@ class Extractor():
                 locality_registered = True
         if(not locality_registered):
             self._insert_new_locality(locality)
-
-    def get_address_from_lat_lng(lat, lng):
+    """
+    Method that will get the address from the latitude and longitude of the monument
+    """
+    @staticmethod
+    def get_address_from_lat_lng(lat : str, lng : str) -> str:
         lat = float(lat)
         lng = float(lng)
         geolocator = Nominatim(user_agent="https://nominatim.org")
@@ -179,12 +186,15 @@ class Extractor():
         locality_id = (self.db.table('localidad').select('id').eq('nombre', locality['nombre']).execute()).data[0]['id']
         for m in self.monuments:
             if (m['nombre'] == monument['nombre'] and m['localidad_id'] == locality_id):
+                self.logger.warning(f"Error en el monumento '{monument['nombre']}': ya está registrado en la base de datos")
+                self.messages.append_errors(f"Error en el monumento '{monument['nombre']}': ya está registrado en la base de datos")
                 monument_registered = True
         if(not monument_registered):
             monument['localidad_id'] = locality_id
-            # if monument['direccion'] == "":
-            #     monument['direccion'] = self.get_address_from_lat_lng(monument['latitud'], monument['longitud'])
+            if monument['direccion'] == "":
+                monument['direccion'] = self.get_address_from_lat_lng(monument['latitud'], monument['longitud'])
             self._insert_new_monument(monument)
+        return monument_registered
 
     def _insert_new_province(self, new_province):
         self.provinces.append(new_province)
@@ -195,6 +205,7 @@ class Extractor():
         self.db.table('localidad').insert(new_locality).execute()
 
     def _insert_new_monument(self, new_monument):
+        self.monuments.append(new_monument)
         self.db.table('monumento').insert(new_monument).execute()
 
     """
